@@ -112,12 +112,14 @@ def save_samples(image, samples, path):
     marked.save(path)
 
 
-def save_compare(image, masks, path, titles=("Input", "Primal SVM", "Dual SVM")):
+def save_compare(image, masks, path):
     size = 500
-    canvas = Image.new("RGB", (size * 3, size + 30), "white")
+    canvas = Image.new("RGB", (size * 2, (size + 30) * 2), "white")
     draw = ImageDraw.Draw(canvas)
-    pictures = [image, Image.fromarray(masks[0]), Image.fromarray(masks[1])]
+    titles = ["Input", "Linear SVM (primal)", "Linear SVM (dual)", "RBF SVM"]
+    pictures = [image] + [Image.fromarray(mask) for mask in masks]
     for i, (title, picture) in enumerate(zip(titles, pictures)):
-        draw.text((i * size + 10, 8), title, fill="black")
-        canvas.paste(picture.resize((size, size), Image.Resampling.NEAREST), (i * size, 30))
+        x, y = (i % 2) * size, (i // 2) * (size + 30)
+        draw.text((x + 10, y + 8), title, fill="black")
+        canvas.paste(picture.resize((size, size), Image.Resampling.NEAREST), (x, y + 30))
     canvas.save(path)

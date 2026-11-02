@@ -1,11 +1,6 @@
-from pathlib import Path
-
 import numpy as np
-from PIL import Image
 from scipy.optimize import minimize
 from scipy.spatial.distance import cdist
-
-from svm_image_utils import select_samples, prepare_data
 
 
 def rbf(X, Z, gamma):
@@ -36,20 +31,3 @@ def predict_rbf(features, X, y, a, b, gamma):
         result[start:start + 4096] = (score >= 0) * 255
     return result
 
-
-def main():
-    folder = Path(__file__).resolve().parent.parent
-    output = folder / "output"
-    output.mkdir(exist_ok=True)
-    image = Image.open(folder / "00000341.jpg").convert("RGB")
-    C, gamma = 1.0, 0.1
-    samples = select_samples(image, "非线性 SVM：选择训练样本")
-    features, X, y = prepare_data(image, samples, window=21)
-    a, b = solve_rbf(X, y, C, gamma)
-    mask = predict_rbf(features, X, y, a, b, gamma).reshape(image.height, image.width)
-    Image.fromarray(mask).save(output / "rbf_mask.png")
-    print("分割结果：", output / "rbf_mask.png")
-
-
-if __name__ == "__main__":
-    main()
